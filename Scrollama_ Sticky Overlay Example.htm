@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<!-- saved from url=(0061)https://russellgoldenberg.github.io/scrollama/sticky-overlay/ -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+    <script src="https://d3js.org/d3.v4.js"></script>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Scrollama: Sticky Overlay Example</title>
+    <meta name="description" content="Scrollama: Sticky Overlay Example">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="./Scrollama_ Sticky Overlay Example_files/style.css">
+    <style>
+      #my_dataviz {
+        margin: 0 auto;
+        width: 460px;
+      }
+
+      #scrolly {
+        position: relative;
+        background-color: #f3f3f3;
+        padding: 1rem;
+      }
+
+      article {
+        position: relative;
+        padding: 0;
+        max-width: 20rem;
+        margin: 0 auto;
+      }
+
+      figure {
+        position: -webkit-sticky;
+        position: sticky;
+        left: 0;
+        width: 100%;
+        margin: 0;
+        -webkit-transform: translate3d(0, 0, 0);
+        -moz-transform: translate3d(0, 0, 0);
+        transform: translate3d(0, 0, 0);
+        /* background-color: #8a8a8a; */
+        z-index: 0;
+      }
+
+      figure p {
+        text-align: center;
+        padding: 1rem;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        -moz-transform: translate(-50%, -50%);
+        -webkit-transform: translate(-50%, -50%);
+        transform: translate(-50%, -50%);
+        font-size: 8rem;
+        font-weight: 900;
+        color: #fff;
+      }
+
+      .step {
+        margin: 0 auto 2rem auto;
+        color: #fff;
+        background-color: rgba(0, 0, 0, 0.1);
+      }
+
+      .step:last-child {
+        margin-bottom: 0;
+      }
+
+      .step.is-active p {
+        background-color: goldenrod;
+        color: #3b3b3b;
+      }
+
+      .step p {
+        text-align: center;
+        padding: 1rem;
+        font-size: 1.5rem;
+        background-color: #3b3b3b;
+      }
+    </style>
+  </head>
+
+  <body>
+    <main>
+
+      <section id="scrolly">
+        <figure style="height: 319px; top: 159.5px;">
+          <div id="my_dataviz"></div>
+        </figure>
+
+        <script>
+          // set the dimensions and margins of the graph
+          var margin = {top: 10, right: 30, bottom: 30, left: 30},
+              width = 460 - margin.left - margin.right,
+              height = 400 - margin.top - margin.bottom;
+  
+          // append the svg object to the body of the page
+          var svg = d3.select("#my_dataviz")
+          .append("svg")
+              .attr("width", width + margin.left + margin.right)
+              .attr("height", height + margin.top + margin.bottom)
+          .append("g")
+              .attr("transform",
+                  "translate(" + margin.left + "," + margin.top + ")");
+  
+  
+          trueData = []
+  
+          for (var i = 0; i < 100; i+=3) {
+              curPoint = {}
+              curPoint['x'] = i
+              curPoint['y'] = 100 - i
+              trueData.push(curPoint);
+          }
+  
+          // Add X axis
+          x = d3.scaleLinear()
+              .domain([0, 100])
+              .range([ 0, width ]);
+  
+          // Add Y axis
+          y = d3.scaleLinear()
+              .domain([0, 100])
+              .range([ height, 0]);
+
+          n = 0;
+  
+          // Add dots
+          var circle = svg.append('g')
+              .selectAll("dot")
+              .data(trueData)
+              .enter()
+              .append("circle")
+              .attr("cx", function (d) { return x(d.x); } )
+              .attr("cy", function (d) { return y(d.y); } )
+              .attr("r", 5)
+              .style("fill", "#69b3a2")
+              // .each(function() {
+              //     transitioning()
+              // })
+          transitioning();
+  
+          function transitioning() {
+              n += 1
+              if (n>6000) return
+
+              const t = d3.transition().duration(700).ease(d3.easeCubic)
+
+              circle
+                  .transition(t)
+                  // .attr("cx", function (d) { return x(d.x-10); } 
+                  .attr("cx", function (d) { rn = Math.floor(Math.random() * Math.floor(3)) - 1; d.x = d.x - rn; return x(d.x) } )
+                  .attr("cy", function (d) { rn = Math.floor(Math.random() * Math.floor(3)) - 1; d.y = d.y - rn; return y(d.y) } )
+                  .on("end", transitioning);
+          }
+  
+      </script>
+
+        <article>
+          <div class="step is-active" data-step="1" style="height: 478px;" data-scrollama-index="0">
+            <p>STEP 1</p>
+          </div>
+          <div class="step" data-step="2" style="height: 478px;" data-scrollama-index="1">
+            <p>STEP 2</p>
+          </div>
+          <div class="step" data-step="3" style="height: 478px;" data-scrollama-index="2">
+            <p>STEP 3</p>
+          </div>
+          <div class="step" data-step="4" style="height: 478px;" data-scrollama-index="3">
+            <p>STEP 4</p>
+          </div>
+        </article>
+      </section>
+
+      <section id="outro"></section>
+    </main>
+
+    <!-- <div class='debug'></div> -->
+    <script src="./Scrollama_ Sticky Overlay Example_files/d3.min.js"></script>
+    <script src="./Scrollama_ Sticky Overlay Example_files/intersection-observer.js"></script>
+    <script src="./Scrollama_ Sticky Overlay Example_files/stickyfill.min.js"></script>
+    <script src="./Scrollama_ Sticky Overlay Example_files/scrollama.min.js"></script>
+    <script>
+      // using d3 for convenience
+      var main = d3.select("main");
+      var scrolly = main.select("#scrolly");
+      var figure = scrolly.select("figure");
+      var article = scrolly.select("article");
+      var step = article.selectAll(".step");
+
+      // initialize the scrollama
+      var scroller = scrollama();
+
+      // generic window resize listener event
+      function handleResize() {
+        // 1. update height of step elements
+        var stepH = Math.floor(window.innerHeight * 0.75);
+        step.style("height", stepH + "px");
+
+        var figureHeight = window.innerHeight / 2;
+        var figureMarginTop = (window.innerHeight - figureHeight) / 2;
+
+        figure
+          .style("height", figureHeight + "px")
+          .style("top", figureMarginTop + "px");
+
+        // 3. tell scrollama to update new element dimensions
+        scroller.resize();
+      }
+
+      // scrollama event handlers
+      function handleStepEnter(response) {
+        console.log(response);
+        // response = { element, direction, index }
+
+        // add color to current step only
+        step.classed("is-active", function(d, i) {
+          return i === response.index;
+        });
+
+        // update graphic based on step
+        figure.select("p").text(response.index + 1);
+      }
+
+      function setupStickyfill() {
+        d3.selectAll(".sticky").each(function() {
+          Stickyfill.add(this);
+        });
+      }
+
+      function init() {
+        setupStickyfill();
+
+        // 1. force a resize on load to ensure proper dimensions are sent to scrollama
+        handleResize();
+
+        // 2. setup the scroller passing options
+        // 		this will also initialize trigger observations
+        // 3. bind scrollama event handlers (this can be chained like below)
+        scroller
+          .setup({
+            step: "#scrolly article .step",
+            offset: 0.33,
+            debug: false
+          })
+          .onStepEnter(handleStepEnter);
+
+        // setup resize event
+        window.addEventListener("resize", handleResize);
+      }
+
+      // kick things off
+      init();
+    </script>
+  
+
+</body></html>
