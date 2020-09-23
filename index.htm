@@ -1,13 +1,16 @@
 <!DOCTYPE html>
 <!-- saved from url=(0061)https://russellgoldenberg.github.io/scrollama/sticky-overlay/ -->
 <html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-
-    <script src="https://d3js.org/d3.v4.js"></script>
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>Scrollama: Sticky Overlay Example</title>
     <meta name="description" content="Scrollama: Sticky Overlay Example">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="./Scrollama_ Sticky Overlay Example_files/style.css">
+    <link rel="stylesheet" href="style.css">
+    <script src="d3.min.js"></script>
+    <script src="intersection-observer.js"></script>
+    <script src="stickyfill.min.js"></script>
+    <script src="scrollama.min.js"></script>
+
     <style>
       #my_dataviz {
         margin: 0 auto;
@@ -104,7 +107,7 @@
   
           trueData = []
   
-          for (var i = 0; i < 100; i+=3) {
+          for (var i = 0; i < 100; i+=2) {
               curPoint = {}
               curPoint['x'] = i
               curPoint['y'] = 100 - i
@@ -174,10 +177,6 @@
     </main>
 
     <!-- <div class='debug'></div> -->
-    <script src="./Scrollama_ Sticky Overlay Example_files/d3.min.js"></script>
-    <script src="./Scrollama_ Sticky Overlay Example_files/intersection-observer.js"></script>
-    <script src="./Scrollama_ Sticky Overlay Example_files/stickyfill.min.js"></script>
-    <script src="./Scrollama_ Sticky Overlay Example_files/scrollama.min.js"></script>
     <script>
       // using d3 for convenience
       var main = d3.select("main");
