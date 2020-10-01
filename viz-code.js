@@ -15,7 +15,7 @@ var canvas = d3.select("#canvas")
 function hospital_1() {
     console.log('')
 
-    d3.xml("hospital.svg", 
+    d3.xml("https://github.com/pineappleblack/virus-sim/blob/master/hospital.svg", 
         function(error, documentFragment) {
 
             if (error) {console.log(error); return;}
