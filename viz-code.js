@@ -1,3 +1,7 @@
+// Красивое расположение пациентов и врачей
+// Вход новых пациентов
+// Покраснение всего
+
 // set the dimensions and margins of the graph
 var margin = {top: 10, right: 30, bottom: 30, left: 30},
 width = 460 - margin.left - margin.right,
@@ -13,27 +17,13 @@ var canvas = d3.select("#canvas")
     "translate(" + margin.left + "," + margin.top + ")");
 
 function hospital_1() {
-    console.log('')
 
-    d3.xml("https://github.com/pineappleblack/virus-sim/blob/master/hospital.svg", 
-        function(error, documentFragment) {
+    d3.xml("https://raw.githubusercontent.com/pineappleblack/virus-sim/master/hospital.svg")
+    .then(data => {
+        canvas.node()
+        .append(data.documentElement)
 
-            if (error) {console.log(error); return;}
-
-            // var svgNode = documentFragment
-            //             .getElementsByTagName("svg")[0];
-            // //use plain Javascript to extract the node
-
-            canvas.node().appendChild(svgNode);
-            //d3's selection.node() returns the DOM node, so we
-            //can use plain Javascript to append content
-
-            var innerSVG = canvas.select("svg");
-
-            innerSVG.transition().duration(1000).delay(1000)
-                .select("circle")
-                .attr("r", 100);
-
+        canvas.select("svg").attr('id', 'hospital1')
     });
 }
 
@@ -43,8 +33,8 @@ trueData = []
 
 for (var i = 0; i < 100; i+=2) {
   curPoint = {}
-  curPoint['x'] = i
-  curPoint['y'] = 100 - i
+  curPoint['x'] = Math.random() * Math.floor(100)
+  curPoint['y'] = Math.random() * Math.floor(100)
   trueData.push(curPoint);
 }
 
@@ -73,6 +63,28 @@ circle = canvas.append('g')
   .style("fill", "#69b3a2")
 
 // transitioning();
+}
+
+function scatter2() {
+    bad_pat_data = []
+
+    for (var i = 0; i < 2; i+=1) {
+        curPoint = {}
+        curPoint['x'] = Math.random() * Math.floor(100)
+        curPoint['y'] = Math.random() * Math.floor(100)
+        bad_pat_data.push(curPoint);
+      }
+
+    circle2 = canvas.append('g')
+    .attr("class", 'graph2')
+    .selectAll("dot")
+    .data(bad_pat_data)
+    .enter()
+    .append("circle")
+    .attr("cx", function (d) { return x(d.x); } )
+    .attr("cy", function (d) { return y(d.y); } )
+    .attr("r", 5)
+    .style("fill", "red")
 }
 
 function transitioning() {
@@ -133,24 +145,47 @@ circle
 
     if (response.index == 0) {
         hospital_1()
+
+        graph1 = d3.select(".graph1")
+        if (!graph1.empty()) {
+        graph1
+            .attr('visibility', 'hidden')
+        }
+    }
+
+    if (response.index == 1) {
+        if (!graph1.empty()) {
+          graph1
+            .attr('visibility', 'visible')
+        } else {
+          scatter();
+        }
+
+        graph2 = d3.select(".graph2")
+        if (!graph2.empty()) {
+        graph2
+            .attr('visibility', 'hidden')
+        }
+    }
+
+    if (response.index == 2) {
+        if (!graph2.empty()) {
+          graph2
+            .attr('visibility', 'visible')
+        } else {
+          scatter2();
+        }
+    }
+
+    if (response.index == 3) {
+        circle
+            .style("fill", "red")
     }
 
 //    if (response.index == 1) {
-//      graph1 = d3.select(".graph1")
-//      if (!graph1.empty()) {
-//        graph1
-//          .attr('visibility', 'hidden')
-//      }
-//    }
      
-//    if (response.index == 2) {
-//      if (!graph1.empty()) {
-//        graph1
-//          .attr('visibility', 'visible')
-//      } else {
-//        scatter();
-//      }
 //    }
+    
      
 //    if (2<response.index==response.index<5)
 //      transitioning()
