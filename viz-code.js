@@ -1,20 +1,38 @@
-// Красивое расположение пациентов и врачей
-// Вход новых пациентов
-// Покраснение всего
+// TASKS
+
+//Done:
+// Сделать канвас адаптивным
+// Кривое наложение полоски скролла
+// Убрать лишние стили
+// Виз по центру экрана (сейчас он вылезает)
+// Максимальный размер по ширине
+
+//ToDo:
+// Ресайз виза
+// Сделать код более понятным
+// Поделить точки на врачей и пациентов
+// Покраснение 90% точек (а не всех)
+// Красивые иконки масок
+// Нормальные блоки с текстом
+// Размер блоков с текстом
+// Расположение врачей
+
 
 // set the dimensions and margins of the graph
-var margin = {top: 10, right: 30, bottom: 30, left: 30},
-width = 460 - margin.left - margin.right,
-height = 400 - margin.top - margin.bottom;
+maxWidth = 4 * document.documentElement.clientHeight / 3
+
+figureWidth = document.documentElement.clientWidth > maxWidth ? maxWidth : document.documentElement.clientWidth;
+figureHeight = 3 * figureWidth / 4;
+
+d3.select("#canvas")
+    .style('width', figureWidth + 'px')
 
 // append the svg object to the body of the page
 var canvas = d3.select("#canvas")
 .append("svg")
-.attr("width", width + margin.left + margin.right)
-.attr("height", height + margin.top + margin.bottom)
+.attr("width", figureWidth)
+.attr("height", figureHeight)
 .append("g")
-.attr("transform",
-    "translate(" + margin.left + "," + margin.top + ")");
 
 function hospital_1() {
 
@@ -29,40 +47,42 @@ function hospital_1() {
 
 function scatter() {
 
-trueData = []
+    trueData = []
 
-for (var i = 0; i < 100; i+=2) {
-  curPoint = {}
-  curPoint['x'] = Math.random() * Math.floor(100)
-  curPoint['y'] = Math.random() * Math.floor(100)
-  trueData.push(curPoint);
-}
+    for (var i = 0; i < 100; i+=3) {
+        curPoint = {}
+        curPoint['x'] = Math.random() * Math.floor(90)
+        curPoint['y'] = Math.random() * Math.floor(90)
+        curPoint['role'] = i%3?'doctor':'patient'
+        trueData.push(curPoint);
+    }
 
-// Add X axis
-x = d3.scaleLinear()
-  .domain([0, 100])
-  .range([ 0, width ]);
+    // Add X axis
+    x = d3.scaleLinear()
+    .domain([0, 100])
+    .range([ 0, figureWidth ]);
 
-// Add Y axis
-y = d3.scaleLinear()
-  .domain([0, 100])
-  .range([ height, 0]);
+    // Add Y axis
+    y = d3.scaleLinear()
+    .domain([0, 100])
+    .range([ figureHeight, 0]);
 
-n = 0;
+    n = 0;
 
-// Add dots
-circle = canvas.append('g')
-  .attr("class", 'graph1')
-  .selectAll("dot")
-  .data(trueData)
-  .enter()
-  .append("circle")
-  .attr("cx", function (d) { return x(d.x); } )
-  .attr("cy", function (d) { return y(d.y); } )
-  .attr("r", 5)
-  .style("fill", "#69b3a2")
+    // Add dots
+    circle = canvas.append('g')
+    .attr("class", 'graph1')
+    .selectAll("dot")
+    .data(trueData)
+    .enter()
+    .append("circle")
+    .attr("cx", function (d) { return x(d.x); } )
+    .attr("cy", function (d) { return y(d.y); } )
+    .attr("r", 10)
+    .style("fill", "#69b3a2")
+    .attr("data-role", function (d) { return d.role; } )
 
-// transitioning();
+    // transitioning();
 }
 
 function scatter2() {
@@ -70,8 +90,8 @@ function scatter2() {
 
     for (var i = 0; i < 2; i+=1) {
         curPoint = {}
-        curPoint['x'] = Math.random() * Math.floor(100)
-        curPoint['y'] = Math.random() * Math.floor(100)
+        curPoint['x'] = Math.random() * Math.floor(90)
+        curPoint['y'] = Math.random() * Math.floor(90)
         bad_pat_data.push(curPoint);
       }
 
@@ -83,22 +103,22 @@ function scatter2() {
     .append("circle")
     .attr("cx", function (d) { return x(d.x); } )
     .attr("cy", function (d) { return y(d.y); } )
-    .attr("r", 5)
+    .attr("r", 10)
     .style("fill", "red")
 }
 
 function transitioning() {
-n += 1
-if (n>6000) return
+    n += 1
+    if (n>6000) return
 
-const t = d3.transition().duration(700).ease(d3.easeCubic)
+    const t = d3.transition().duration(700).ease(d3.easeCubic)
 
-circle
-    .transition(t)
-    // .attr("cx", function (d) { return x(d.x-10); } 
-    .attr("cx", function (d) { rn = Math.floor(Math.random() * Math.floor(3)) - 1; d.x = d.x - rn*10; return x(d.x) } )
-    .attr("cy", function (d) { rn = Math.floor(Math.random() * Math.floor(3)) - 1; d.y = d.y - rn*10; return y(d.y) } )
-    // .on("end", transitioning);
+    circle
+        .transition(t)
+        // .attr("cx", function (d) { return x(d.x-10); } 
+        .attr("cx", function (d) { rn = Math.floor(Math.random() * Math.floor(3)) - 1; d.x = d.x - rn*10; return x(d.x) } )
+        .attr("cy", function (d) { rn = Math.floor(Math.random() * Math.floor(3)) - 1; d.y = d.y - rn*10; return y(d.y) } )
+        // .on("end", transitioning);
 }
 
 // ==============================
@@ -117,15 +137,18 @@ circle
  // generic window resize listener event
  function handleResize() {
    // 1. update height of step elements
-   var stepH = Math.floor(window.innerHeight * 0.75);
+   var stepH = Math.floor(document.documentElement.clientWidth * 0.75);
    step.style("height", stepH + "px");
 
-   var figureHeight = window.innerHeight / 2;
    var figureMarginTop = (window.innerHeight - figureHeight) / 2;
-
+   if (figureMarginTop < 0)
+    figureMarginTop = 0
+   
+   
    figure
      .style("height", figureHeight + "px")
-     .style("top", figureMarginTop + "px");
+     .style("top", figureMarginTop  + "px");
+
 
    // 3. tell scrollama to update new element dimensions
    scroller.resize();
@@ -154,11 +177,12 @@ circle
     }
 
     if (response.index == 1) {
+        graph1 = d3.select(".graph1")
         if (!graph1.empty()) {
-          graph1
+            graph1
             .attr('visibility', 'visible')
         } else {
-          scatter();
+            scatter();
         }
 
         graph2 = d3.select(".graph2")
@@ -169,11 +193,17 @@ circle
     }
 
     if (response.index == 2) {
+        graph2 = d3.select(".graph2")
         if (!graph2.empty()) {
           graph2
             .attr('visibility', 'visible')
         } else {
           scatter2();
+        }
+
+        if (!circle.empty()) {
+            circle
+                .style("fill", "#69b3a2")
         }
     }
 
@@ -181,14 +211,6 @@ circle
         circle
             .style("fill", "red")
     }
-
-//    if (response.index == 1) {
-     
-//    }
-    
-     
-//    if (2<response.index==response.index<5)
-//      transitioning()
  }
 
  function setupStickyfill() {
