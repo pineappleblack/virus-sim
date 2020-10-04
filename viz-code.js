@@ -91,20 +91,27 @@ function scatter() {
         doctors = d3.selectAll("[data-role=doctor]")
 
         doctors
-            .style('stroke', 'blue')
-            .style('stroke-width', 2)
+            // .style('stroke', 'blue')
+            // .style('stroke-width', 2)
+            .append('image')
+            .attr("xlink:href", "https://raw.githubusercontent.com/pineappleblack/virus-sim/master/hat.png")
+            // .attr("x", function(d){ return d.x })
+            // .attr("y", function(d){ return d.y })
+            .attr("width", 2*circleRadius)
+            .attr("height", 2*circleRadius)
+            .attr("transform", function (d) { return 'translate(' + -circleRadius + ', ' + -2 * circleRadius + ')'; } ) 
         
-        doctors.node()
-            .appendChild(data.documentElement)
+        // doctors.node()
+        //     .appendChild(data.documentElement)
         
-        innerSVG = doctors.selectAll("svg");
-        innerSVG
-            // .attr('height', 2*circleRadius+ 'px')
-            // .attr('width', 2*circleRadius + 'px')
-            // .attr('t', 'hey')
-            // .attr("text", function (d) { console.log(this.parentNode) })
-            // .attr("transform", function (d) { return 'translate(' + 100 + 'px, ' + 0 + ')'; } ) 
-            .attr("transform", "scale(0.0001)")
+        // innerSVG = doctors.selectAll("svg");
+        // innerSVG
+        //     // .attr('height', 2*circleRadius+ 'px')
+        //     // .attr('width', 2*circleRadius + 'px')
+        //     // .attr('t', 'hey')
+        //     // .attr("text", function (d) { console.log(this.parentNode) })
+        //     // 
+        //     .attr("transform", "scale(0.0001)")
     });
 
     // transitioning();
