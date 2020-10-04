@@ -6,16 +6,17 @@
 // Убрать лишние стили
 // Виз по центру экрана (сейчас он вылезает)
 // Максимальный размер по ширине
+// Поделить точки на врачей и пациентов
 
 //ToDo:
 // Ресайз виза
 // Сделать код более понятным
-// Поделить точки на врачей и пациентов
 // Покраснение 90% точек (а не всех)
 // Красивые иконки масок
 // Нормальные блоки с текстом
 // Размер блоков с текстом
 // Расположение врачей
+// Иконки для врачей
 
 
 // set the dimensions and margins of the graph
@@ -29,10 +30,10 @@ d3.select("#canvas")
 
 // append the svg object to the body of the page
 var canvas = d3.select("#canvas")
-.append("svg")
-.attr("width", figureWidth)
-.attr("height", figureHeight)
-.append("g")
+    .append("svg")
+    .attr("width", figureWidth)
+    .attr("height", figureHeight)
+    .append("g")
 
 function hospital_1() {
 
@@ -46,6 +47,7 @@ function hospital_1() {
 }
 
 function scatter() {
+    circleRadius = 10
 
     trueData = []
 
@@ -53,34 +55,57 @@ function scatter() {
         curPoint = {}
         curPoint['x'] = Math.random() * Math.floor(90)
         curPoint['y'] = Math.random() * Math.floor(90)
-        curPoint['role'] = i%3?'doctor':'patient'
+        curPoint['role'] = (i%5==0)?'doctor':'patient'
         trueData.push(curPoint);
     }
 
     // Add X axis
     x = d3.scaleLinear()
-    .domain([0, 100])
-    .range([ 0, figureWidth ]);
+        .domain([0, 100])
+        .range([ 0, figureWidth ]);
 
     // Add Y axis
     y = d3.scaleLinear()
-    .domain([0, 100])
-    .range([ figureHeight, 0]);
+        .domain([0, 100])
+        .range([ figureHeight, 0]);
 
     n = 0;
 
     // Add dots
     circle = canvas.append('g')
-    .attr("class", 'graph1')
-    .selectAll("dot")
-    .data(trueData)
-    .enter()
-    .append("circle")
-    .attr("cx", function (d) { return x(d.x); } )
-    .attr("cy", function (d) { return y(d.y); } )
-    .attr("r", 10)
-    .style("fill", "#69b3a2")
-    .attr("data-role", function (d) { return d.role; } )
+        .attr("class", 'graph1')
+        .selectAll()
+        .data(trueData)
+        .enter()
+        .append("g")
+        .attr("transform", function (d) { return 'translate(' + x(d.x) + ', ' + y(d.y) + ')'; } ) 
+        .attr("data-role", function (d) { return d.role; } )
+        .append("circle")
+        .attr("r", circleRadius)
+        .style("fill", "#69b3a2")
+
+
+    d3.xml("https://raw.githubusercontent.com/pineappleblack/virus-sim/master/hat.svg")
+    .then(data => {
+     
+        doctors = d3.selectAll("[data-role=doctor]")
+
+        doctors
+            .style('stroke', 'blue')
+            .style('stroke-width', 2)
+        
+        doctors.node()
+            .appendChild(data.documentElement)
+        
+        innerSVG = doctors.selectAll("svg");
+        innerSVG
+            // .attr('height', 2*circleRadius+ 'px')
+            // .attr('width', 2*circleRadius + 'px')
+            // .attr('t', 'hey')
+            // .attr("text", function (d) { console.log(this.parentNode) })
+            // .attr("transform", function (d) { return 'translate(' + 100 + 'px, ' + 0 + ')'; } ) 
+            .attr("transform", "scale(0.0001)")
+    });
 
     // transitioning();
 }
