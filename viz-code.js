@@ -7,16 +7,17 @@
 // Виз по центру экрана (сейчас он вылезает)
 // Максимальный размер по ширине
 // Поделить точки на врачей и пациентов
+// Иконки для врачей
+// Иконки масок
 
 //ToDo:
 // Ресайз виза
 // Сделать код более понятным
 // Покраснение 90% точек (а не всех)
-// Красивые иконки масок
 // Нормальные блоки с текстом
 // Размер блоков с текстом
 // Расположение врачей
-// Иконки для врачей
+// Размер точек в зависимости от размера экрана
 
 
 // set the dimensions and margins of the graph
@@ -82,37 +83,16 @@ function scatter() {
         .attr("data-role", function (d) { return d.role; } )
         .append("circle")
         .attr("r", circleRadius)
-        .style("fill", "#69b3a2")
+        .style("fill", "#7579e7")
 
+    doctors = d3.selectAll("[data-role=doctor]")
 
-    d3.xml("https://raw.githubusercontent.com/pineappleblack/virus-sim/master/hat.svg")
-    .then(data => {
-     
-        doctors = d3.selectAll("[data-role=doctor]")
-
-        doctors
-            // .style('stroke', 'blue')
-            // .style('stroke-width', 2)
-            .append('image')
-            .attr("xlink:href", "https://raw.githubusercontent.com/pineappleblack/virus-sim/master/hat.png")
-            // .attr("x", function(d){ return d.x })
-            // .attr("y", function(d){ return d.y })
-            .attr("width", 2*circleRadius)
-            .attr("height", 2*circleRadius)
-            .attr("transform", function (d) { return 'translate(' + -circleRadius + ', ' + -2 * circleRadius + ')'; } ) 
-        
-        // doctors.node()
-        //     .appendChild(data.documentElement)
-        
-        // innerSVG = doctors.selectAll("svg");
-        // innerSVG
-        //     // .attr('height', 2*circleRadius+ 'px')
-        //     // .attr('width', 2*circleRadius + 'px')
-        //     // .attr('t', 'hey')
-        //     // .attr("text", function (d) { console.log(this.parentNode) })
-        //     // 
-        //     .attr("transform", "scale(0.0001)")
-    });
+    doctors
+        .append('image')
+        .attr("xlink:href", "https://raw.githubusercontent.com/pineappleblack/virus-sim/master/hat.png")
+        .attr("width", 2*circleRadius)
+        .attr("height", 2*circleRadius)
+        .attr("transform", function (d) { return 'translate(' + -circleRadius + ', ' + -2 * circleRadius + ')'; } ) 
 
     // transitioning();
 }
@@ -153,10 +133,24 @@ function transitioning() {
         // .on("end", transitioning);
 }
 
+function masks() {
+
+    masksGiven = true
+
+    dots = d3.selectAll(".graph1 g, .graph2 g")
+    console.log(dots)
+
+    dots
+        .append('image')
+        .attr("xlink:href", "https://raw.githubusercontent.com/pineappleblack/virus-sim/master/mask.png")
+        .attr("width", 2*circleRadius)
+        .attr("height", 2*circleRadius)
+        .attr("transform", function (d) { return 'translate(' + -circleRadius + ', ' + -circleRadius/2 + ')'; } ) 
+        .attr("class", 'mask')
+}
+
 // ==============================
 
-
- // using d3 for convenience
  var main = d3.select("main");
  var scrolly = main.select("#scrolly");
  var figure = scrolly.select("figure");
@@ -235,13 +229,28 @@ function transitioning() {
 
         if (!circle.empty()) {
             circle
-                .style("fill", "#69b3a2")
+                .style("fill", "#7579e7")
         }
     }
 
     if (response.index == 3) {
         circle
             .style("fill", "red")
+
+        if (typeof masksGiven !== 'undefined') {   
+            console.log('hide masks!')
+            d3.selectAll('.mask')
+                .style('visibility', 'hidden')
+        }
+    }
+
+    if (response.index == 4) {
+        if (typeof masksGiven == 'undefined') {  
+            masks()
+        } else {
+            d3.selectAll('.mask')
+                .style('visibility', 'visible')
+        }
     }
  }
 
