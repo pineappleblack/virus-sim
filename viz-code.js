@@ -9,18 +9,21 @@
 // Поделить точки на врачей и пациентов
 // Иконки для врачей
 // Иконки масок
+// Нормальные блоки с текстом
+// Размер блоков с текстом
 
 //ToDo:
 // Ресайз виза
-// Сделать код более понятным
-// Покраснение 90% точек (а не всех)
-// Нормальные блоки с текстом
-// Размер блоков с текстом
-// Расположение врачей
 // Размер точек в зависимости от размера экрана
+// Сделать код более понятным
+
+// Покраснение 90% точек (а не всех)
+// Расположение врачей
+
+// Норм цвета
 
 
-// set the dimensions and margins of the graph
+// Строим канвас
 maxWidth = 4 * document.documentElement.clientHeight / 3
 
 figureWidth = document.documentElement.clientWidth > maxWidth ? maxWidth : document.documentElement.clientWidth;
@@ -29,13 +32,14 @@ figureHeight = 3 * figureWidth / 4;
 d3.select("#canvas")
     .style('width', figureWidth + 'px')
 
-// append the svg object to the body of the page
 var canvas = d3.select("#canvas")
     .append("svg")
     .attr("width", figureWidth)
     .attr("height", figureHeight)
     .append("g")
 
+
+// План первой больницы
 function hospital_1() {
 
     d3.xml("https://raw.githubusercontent.com/pineappleblack/virus-sim/master/hospital.svg")
@@ -47,6 +51,7 @@ function hospital_1() {
     });
 }
 
+// Первые точки
 function scatter() {
     circleRadius = 10
 
@@ -60,19 +65,16 @@ function scatter() {
         trueData.push(curPoint);
     }
 
-    // Add X axis
     x = d3.scaleLinear()
         .domain([0, 100])
         .range([ 0, figureWidth ]);
 
-    // Add Y axis
     y = d3.scaleLinear()
         .domain([0, 100])
         .range([ figureHeight, 0]);
 
     n = 0;
 
-    // Add dots
     circle = canvas.append('g')
         .attr("class", 'graph1')
         .selectAll()
@@ -119,6 +121,7 @@ function scatter2() {
     .style("fill", "red")
 }
 
+// Функция перемещения
 function transitioning() {
     n += 1
     if (n>6000) return
@@ -156,6 +159,7 @@ function masks() {
  var figure = scrolly.select("figure");
  var article = scrolly.select("article");
  var step = article.selectAll(".step");
+ var step_text = step.selectAll(".step_text");
 
  // initialize the scrollama
  var scroller = scrollama();
@@ -163,8 +167,12 @@ function masks() {
  // generic window resize listener event
  function handleResize() {
    // 1. update height of step elements
-   var stepH = Math.floor(document.documentElement.clientWidth * 0.75);
+   var stepH = Math.floor(document.documentElement.clientHeight * 1.5);
+
    step.style("height", stepH + "px");
+   step_text.style("height", figureHeight/2 + "px");
+   step.style("padding-top", (stepH - figureHeight/2)/2  + "px");
+   console.log(stepH, figureHeight/2, (stepH - figureHeight/2)/2)
 
    var figureMarginTop = (window.innerHeight - figureHeight) / 2;
    if (figureMarginTop < 0)
