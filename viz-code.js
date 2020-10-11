@@ -1,43 +1,52 @@
 // TASKS
 
 //Done:
-// Сделать канвас адаптивным
-// Кривое наложение полоски скролла
-// Убрать лишние стили
-// Виз по центру экрана (сейчас он вылезает)
-// Максимальный размер по ширине
-// Поделить точки на врачей и пациентов
-// Иконки для врачей
-// Иконки масок
-// Нормальные блоки с текстом
-// Размер блоков с текстом
+// Ресайз виза 
+// Виз по центру экрана при большой ширине
+// Размер точек в зависимости от размера экрана
+// Минимальный размер экрана
 
 //ToDo:
-// Ресайз виза
-// Размер точек в зависимости от размера экрана
 // Сделать код более понятным
 
 // Покраснение 90% точек (а не всех)
-// Расположение врачей
+// Расположение точек из файла
+// Расположение точек в разных госпиталях
 
 // Норм цвета
+// Норм иконки
+// Анимация
 
 
 // Строим канвас
-maxWidth = 4 * document.documentElement.clientHeight / 3
+function define_styles() {
+    maxWidth = 4 * document.documentElement.clientHeight / 3
 
-figureWidth = document.documentElement.clientWidth > maxWidth ? maxWidth : document.documentElement.clientWidth;
-figureHeight = 3 * figureWidth / 4;
+    figureWidth = document.documentElement.clientWidth > maxWidth ? maxWidth : document.documentElement.clientWidth;
+    figureHeight = 3 * figureWidth / 4;
 
-d3.select("#canvas")
-    .style('width', figureWidth + 'px')
+    x = d3.scaleLinear()
+    .domain([0, 99])
+    .range([ 0, figureWidth ]);
 
-var canvas = d3.select("#canvas")
-    .append("svg")
-    .attr("width", figureWidth)
-    .attr("height", figureHeight)
-    .append("g")
+    y = d3.scaleLinear()
+        .domain([0, 99])
+        .range([ figureHeight, 0]);
 
+    circleRadius = figureHeight / 50
+}
+
+function build_canvas() {
+    canvas = d3.select("#canvas")
+        .style("width", figureWidth + 'px')
+        .append("svg")
+        .attr("width", figureWidth)
+        .attr("height", figureHeight)
+        .append("g")
+}
+
+define_styles()
+build_canvas()
 
 // План первой больницы
 function hospital_1() {
@@ -53,7 +62,6 @@ function hospital_1() {
 
 // Первые точки
 function scatter() {
-    circleRadius = 10
 
     trueData = []
 
@@ -64,14 +72,6 @@ function scatter() {
         curPoint['role'] = (i%5==0)?'doctor':'patient'
         trueData.push(curPoint);
     }
-
-    x = d3.scaleLinear()
-        .domain([0, 100])
-        .range([ 0, figureWidth ]);
-
-    y = d3.scaleLinear()
-        .domain([0, 100])
-        .range([ figureHeight, 0]);
 
     n = 0;
 
@@ -114,11 +114,33 @@ function scatter2() {
     .selectAll("dot")
     .data(bad_pat_data)
     .enter()
+    .append("g")
+    .attr("transform", function (d) { return 'translate(' + x(d.x) + ', ' + y(d.y) + ')'; } ) 
+    .append("circle")
+    .attr("r", circleRadius)
+    .style("fill", "red")
+}
+
+function scatter3() {
+    second_hospital_data = []
+
+    for (var i = 0; i < 50; i+=1) {
+        curPoint = {}
+        curPoint['x'] = Math.random() * Math.floor(90)
+        curPoint['y'] = Math.random() * Math.floor(90)
+        second_hospital_data.push(curPoint);
+      }
+
+    circle3 = canvas.append('g')
+    .attr("class", 'graph3')
+    .selectAll("dot")
+    .data(second_hospital_data)
+    .enter()
     .append("circle")
     .attr("cx", function (d) { return x(d.x); } )
     .attr("cy", function (d) { return y(d.y); } )
-    .attr("r", 10)
-    .style("fill", "red")
+    .attr("r", circleRadius)
+    .style("fill", "yellow")
 }
 
 // Функция перемещения
@@ -141,7 +163,6 @@ function masks() {
     masksGiven = true
 
     dots = d3.selectAll(".graph1 g, .graph2 g")
-    console.log(dots)
 
     dots
         .append('image')
@@ -172,7 +193,6 @@ function masks() {
    step.style("height", stepH + "px");
    step_text.style("height", figureHeight/2 + "px");
    step.style("padding-top", (stepH - figureHeight/2)/2  + "px");
-   console.log(stepH, figureHeight/2, (stepH - figureHeight/2)/2)
 
    var figureMarginTop = (window.innerHeight - figureHeight) / 2;
    if (figureMarginTop < 0)
@@ -190,17 +210,15 @@ function masks() {
 
  // scrollama event handlers
  function handleStepEnter(response) {
-    console.log(response);
     // response = { element, direction, index }
+    actual_index = response.index
 
-    // add color to current step only
-    step.classed("is-active", function(d, i) {
-        return i === response.index;
-    });
+    actions(actual_index)
+ }
 
-    console.log(response.index)
+ function actions(index) {
 
-    if (response.index == 0) {
+    if (index == 0) {
         hospital_1()
 
         graph1 = d3.select(".graph1")
@@ -210,7 +228,7 @@ function masks() {
         }
     }
 
-    if (response.index == 1) {
+    if (index == 1) {
         graph1 = d3.select(".graph1")
         if (!graph1.empty()) {
             graph1
@@ -226,7 +244,7 @@ function masks() {
         }
     }
 
-    if (response.index == 2) {
+    if (index == 2) {
         graph2 = d3.select(".graph2")
         if (!graph2.empty()) {
           graph2
@@ -241,23 +259,47 @@ function masks() {
         }
     }
 
-    if (response.index == 3) {
+    if (index == 3) {
         circle
             .style("fill", "red")
 
         if (typeof masksGiven !== 'undefined') {   
-            console.log('hide masks!')
             d3.selectAll('.mask')
-                .style('visibility', 'hidden')
+                .attr('visibility', 'hidden')
         }
     }
 
-    if (response.index == 4) {
+    if (index == 4) {
+       
+        graph12 = d3.selectAll(".graph1, .graph2")
+        graph12
+            .attr('visibility', 'visible')
+
         if (typeof masksGiven == 'undefined') {  
             masks()
         } else {
             d3.selectAll('.mask')
-                .style('visibility', 'visible')
+                .attr('visibility', 'visible')
+        }
+
+        graph3 = d3.select(".graph3")
+        if (!graph3.empty()) {
+        graph3
+            .attr('visibility', 'hidden')
+        }
+    }
+
+    if (index == 5) {
+        graph12 = d3.selectAll(".graph1, .graph2, .mask")
+        graph12
+            .attr('visibility', 'hidden')
+
+        graph3 = d3.select(".graph3")
+        if (!graph3.empty()) {
+          graph3
+            .attr('visibility', 'visible')
+        } else {
+          scatter3();
         }
     }
  }
@@ -291,3 +333,24 @@ function masks() {
 
  // kick things off
  init();
+
+var t = null;
+window.onresize = function(event) {
+    if (t!= null) clearTimeout(t);
+    t = setTimeout(function() {
+
+        d3.selectAll("svg").remove()
+        masksGiven = undefined
+
+        define_styles()
+        handleResize()
+        build_canvas()
+
+        if (actual_index != 'undefined') {
+            for (var i=0; i<actual_index+1; i++) {
+                actions(i)
+            }
+        }
+
+    }, 500);
+};
