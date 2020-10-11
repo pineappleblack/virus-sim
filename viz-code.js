@@ -63,40 +63,34 @@ function hospital_1() {
 // Первые точки
 function scatter() {
 
-    trueData = []
+    d3.csv("https://raw.githubusercontent.com/pineappleblack/virus-sim/master/points_1.csv", function(data) {
+        trueData = data
 
-    for (var i = 0; i < 100; i+=3) {
-        curPoint = {}
-        curPoint['x'] = Math.random() * Math.floor(90)
-        curPoint['y'] = Math.random() * Math.floor(90)
-        curPoint['role'] = (i%5==0)?'doctor':'patient'
-        trueData.push(curPoint);
-    }
+        trueData = [{'x': '5', 'y': '5', 'role': "doctor"}]
+        console.log(data)
 
-    n = 0;
+        circle = canvas.append('g')
+            .attr("class", 'graph1')
+            .selectAll()
+            .data(trueData)
+            .enter()
+            .append("g")
+            .attr("transform", function (d) { return 'translate(' + x(d.x) + ', ' + y(d.y) + ')'; } ) 
+            .attr("data-role", function (d) { return d.role; } )
+            .append("circle")
+            .attr("r", circleRadius)
+            .style("fill", "#7579e7")
 
-    circle = canvas.append('g')
-        .attr("class", 'graph1')
-        .selectAll()
-        .data(trueData)
-        .enter()
-        .append("g")
-        .attr("transform", function (d) { return 'translate(' + x(d.x) + ', ' + y(d.y) + ')'; } ) 
-        .attr("data-role", function (d) { return d.role; } )
-        .append("circle")
-        .attr("r", circleRadius)
-        .style("fill", "#7579e7")
+        doctors = d3.selectAll("[data-role=doctor]")
 
-    doctors = d3.selectAll("[data-role=doctor]")
+        doctors
+            .append('image')
+            .attr("xlink:href", "https://raw.githubusercontent.com/pineappleblack/virus-sim/master/hat.png")
+            .attr("width", 2*circleRadius)
+            .attr("height", 2*circleRadius)
+            .attr("transform", function (d) { return 'translate(' + -circleRadius + ', ' + -2 * circleRadius + ')'; } ) 
+    })
 
-    doctors
-        .append('image')
-        .attr("xlink:href", "https://raw.githubusercontent.com/pineappleblack/virus-sim/master/hat.png")
-        .attr("width", 2*circleRadius)
-        .attr("height", 2*circleRadius)
-        .attr("transform", function (d) { return 'translate(' + -circleRadius + ', ' + -2 * circleRadius + ')'; } ) 
-
-    // transitioning();
 }
 
 function scatter2() {
