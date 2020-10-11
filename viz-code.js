@@ -63,11 +63,14 @@ function hospital_1() {
 // Первые точки
 function scatter() {
 
-    d3.csv("https://raw.githubusercontent.com/pineappleblack/virus-sim/master/points_1.csv", function(data) {
+    console.log('scatter')
+
+    d3.json("https://raw.githubusercontent.com/pineappleblack/virus-sim/master/points_1.json")
+    .then(function(data) {
         trueData = data
 
-        trueData = [{'x': '5', 'y': '5', 'role': "doctor"}]
         console.log(data)
+        // trueData = [{'x': '5', 'y': '5', 'role': "doctor"}]
 
         circle = canvas.append('g')
             .attr("class", 'graph1')
@@ -76,7 +79,7 @@ function scatter() {
             .enter()
             .append("g")
             .attr("transform", function (d) { return 'translate(' + x(d.x) + ', ' + y(d.y) + ')'; } ) 
-            .attr("data-role", function (d) { return d.role; } )
+            .attr("data-role", function (d) { console.log(d); return d.role; } )
             .append("circle")
             .attr("r", circleRadius)
             .style("fill", "#7579e7")
@@ -90,6 +93,9 @@ function scatter() {
             .attr("height", 2*circleRadius)
             .attr("transform", function (d) { return 'translate(' + -circleRadius + ', ' + -2 * circleRadius + ')'; } ) 
     })
+    .catch(function(error) {
+    });
+
 
 }
 
