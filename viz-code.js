@@ -63,14 +63,9 @@ function hospital_1() {
 // Первые точки
 function scatter() {
 
-    console.log('scatter')
-
     d3.json("https://raw.githubusercontent.com/pineappleblack/virus-sim/master/points_1.json")
     .then(function(data) {
         trueData = data
-
-        console.log(data)
-        // trueData = [{'x': '5', 'y': '5', 'role': "doctor"}]
 
         circle = canvas.append('g')
             .attr("class", 'graph1')
@@ -79,7 +74,7 @@ function scatter() {
             .enter()
             .append("g")
             .attr("transform", function (d) { return 'translate(' + x(d.x) + ', ' + y(d.y) + ')'; } ) 
-            .attr("data-role", function (d) { console.log(d); return d.role; } )
+            .attr("data-role", function (d) { return d.role; } )
             .append("circle")
             .attr("r", circleRadius)
             .style("fill", "#7579e7")
@@ -95,7 +90,6 @@ function scatter() {
     })
     .catch(function(error) {
     });
-
 
 }
 
@@ -122,25 +116,37 @@ function scatter2() {
 }
 
 function scatter3() {
-    second_hospital_data = []
 
-    for (var i = 0; i < 50; i+=1) {
-        curPoint = {}
-        curPoint['x'] = Math.random() * Math.floor(90)
-        curPoint['y'] = Math.random() * Math.floor(90)
-        second_hospital_data.push(curPoint);
-      }
+    d3.json("https://raw.githubusercontent.com/pineappleblack/virus-sim/master/points_1.json")
+    .then(function(data) {
+        second_hospital_data = data
 
-    circle3 = canvas.append('g')
-    .attr("class", 'graph3')
-    .selectAll("dot")
-    .data(second_hospital_data)
-    .enter()
-    .append("circle")
-    .attr("cx", function (d) { return x(d.x); } )
-    .attr("cy", function (d) { return y(d.y); } )
-    .attr("r", circleRadius)
-    .style("fill", "yellow")
+        circle3 = canvas.append('g')
+          .attr("class", 'graph3')
+          .selectAll()
+          .data(second_hospital_data)
+          .enter()
+          .append("g")
+          .attr("transform", function (d) { return 'translate(' + x(d.x) + ', ' + y(d.y) + ')'; } ) 
+          .attr("data-role", function (d) { return d.role; } )
+          .append("circle")
+          .attr("r", circleRadius)
+          .style("fill", "yellow")
+
+          doctors = d3.selectAll("[data-role=doctor]")
+
+          doctors
+              .append('image')
+              .attr("xlink:href", "https://raw.githubusercontent.com/pineappleblack/virus-sim/master/hat.png")
+              .attr("width", 2*circleRadius)
+              .attr("height", 2*circleRadius)
+              .attr("transform", function (d) { return 'translate(' + -circleRadius + ', ' + -2 * circleRadius + ')'; } ) 
+    })
+
+    .catch(function(error) {
+    });
+
+  
 }
 
 // Функция перемещения
@@ -253,14 +259,14 @@ function masks() {
           scatter2();
         }
 
-        if (!circle.empty()) {
-            circle
+        if (!graph1.empty()) {
+            graph1
                 .style("fill", "#7579e7")
         }
     }
 
     if (index == 3) {
-        circle
+        graph1
             .style("fill", "red")
 
         if (typeof masksGiven !== 'undefined') {   
