@@ -1,17 +1,10 @@
 // TASKS
 
 //Done:
-// Ресайз виза 
-// Виз по центру экрана при большой ширине
-// Размер точек в зависимости от размера экрана
-// Минимальный размер экрана
 
 //ToDo:
 // Сделать код более понятным
-
-// Покраснение 90% точек (а не всех)
-// Расположение точек из файла
-// Расположение точек в разных госпиталях
+// Точное соответствие сценарию
 
 // Норм цвета
 // Норм иконки
@@ -117,7 +110,7 @@ function scatter2() {
 
 function scatter3() {
 
-    d3.json("https://raw.githubusercontent.com/pineappleblack/virus-sim/master/points_22.json")
+    d3.json("https://raw.githubusercontent.com/pineappleblack/virus-sim/master/points_23.json")
     .then(function(data) {
         second_hospital_data = data
 
