@@ -110,7 +110,7 @@ function scatter2() {
 
 function scatter3() {
 
-    d3.json("https://raw.githubusercontent.com/pineappleblack/virus-sim/master/points_23.json")
+    d3.json("https://raw.githubusercontent.com/pineappleblack/virus-sim/master/points_2.json")
     .then(function(data) {
         second_hospital_data = data
 
