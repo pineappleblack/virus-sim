@@ -2,31 +2,37 @@
 
 //Done:
 
-//ToDo:
-// Сделать код более понятным
-// Точное соответствие сценарию
 
-// Норм цвета
-// Норм иконки
-// Анимация
+//ToDo:
+
+// Анимация точек
+
 
 
 // Строим канвас
-function define_styles() {
+function define_variables() {
     maxWidth = 4 * document.documentElement.clientHeight / 3
 
     figureWidth = document.documentElement.clientWidth > maxWidth ? maxWidth : document.documentElement.clientWidth;
     figureHeight = 3 * figureWidth / 4;
 
+    xSize = 100
+    ySize = 75
+
     x = d3.scaleLinear()
-    .domain([0, 99])
-    .range([ 0, figureWidth ]);
+        .domain([0, xSize - 1])
+        .range([ 0, figureWidth ]);
 
     y = d3.scaleLinear()
-        .domain([0, 99])
-        .range([ figureHeight, 0]);
+        .domain([0, ySize - 1])
+        .range([0, figureHeight]);
 
-    circleRadius = figureHeight / 50
+    dot_size = x(1)
+    transition_time = 500
+
+    if (typeof(last_slide) == 'undefined')
+        last_slide = -1
+
 }
 
 function build_canvas() {
@@ -38,138 +44,160 @@ function build_canvas() {
         .append("g")
 }
 
-define_styles()
+define_variables()
 build_canvas()
 
-// План первой больницы
-function hospital_1() {
+var slides = {
+    slide_0: function () {
+    
+        if (d3.selectAll(".step0").size() == 0) {
+            
+            coords = scroller['data']['slide0_points']
+    
+            for (i = 0; i < coords.length; i++) {
+    
+                canvas.append("circle")
+                    .attr("class", 'step0')
+                    .attr("cx", x(coords[i][0]))
+                    .attr("cy", y(coords[i][1]))
+                    .attr("r", dot_size)
+                    .style("fill", "#ef5350")
+            }
+        
+        }
 
-    d3.xml("https://raw.githubusercontent.com/pineappleblack/virus-sim/master/hospital.svg")
-    .then(data => {
-        canvas.node()
-        .append(data.documentElement)
+        if (last_slide == 1) {
+            start_point = scroller['data']['slide1_start_point']
 
-        canvas.select("svg").attr('id', 'hospital1')
-    });
-}
+            d3.selectAll(".step1")
+                .attr('visibility', 'hidden')
+                .attr("cx", x(start_point[0]))
+                .attr("cy", y(start_point[1]))
+    
+            d3.selectAll(".step0")
+                .attr("cy", y(scroller['data']['slide0_points'][0][1]))
+        }
+    
+        last_slide = 0
+    
+    },
 
-// Первые точки
-function scatter() {
+    slide_1: function () {
 
-    d3.json("https://raw.githubusercontent.com/pineappleblack/virus-sim/master/points_1.json")
-    .then(function(data) {
-        trueData = data
+        if (last_slide == 0) {
+            d3.selectAll(".step0")
+                .transition()
+                .attr("cy", y(scroller['data']['slide1_y0']))
+                .duration(transition_time)
+                .on('end', function() {
 
-        circle = canvas.append('g')
-            .attr("class", 'graph1')
-            .selectAll()
-            .data(trueData)
-            .enter()
-            .append("g")
-            .attr("transform", function (d) { return 'translate(' + x(d.x) + ', ' + y(d.y) + ')'; } ) 
-            .attr("data-role", function (d) { return d.role; } )
-            .append("circle")
-            .attr("r", circleRadius)
-            .style("fill", "#7579e7")
+                    d3.selectAll(".step1")
+                        .attr('visibility', 'visible')
+                
 
-        doctors = d3.selectAll("[data-role=doctor]")
+                    if (d3.selectAll(".step1").size() == 0) {
+                        
+                        start_point = scroller['data']['slide1_start_point']
 
-        doctors
-            .append('image')
-            .attr("xlink:href", "https://raw.githubusercontent.com/pineappleblack/virus-sim/master/hat.png")
-            .attr("width", 2*circleRadius)
-            .attr("height", 2*circleRadius)
-            .attr("transform", function (d) { return 'translate(' + -circleRadius + ', ' + -2 * circleRadius + ')'; } ) 
-    })
-    .catch(function(error) {
-    });
+                        for (i = 0; i < 2; i++) {
+                    
+                            canvas.append("circle")
+                                .attr("class", 'step1 point' + i)
+                                .attr("r", dot_size)
+                                .style("fill", "#ef5350")
+                                .attr("cx", x(start_point[0]))
+                                .attr("cy", y(start_point[1]))
+                        }
+                    
+                    }
 
-}
+                    coords = scroller['data']['slide1_points']
 
-function scatter2() {
-    bad_pat_data = []
+                    for (i = 0; i < coords.length; i++) {
 
-    for (var i = 0; i < 2; i+=1) {
-        curPoint = {}
-        curPoint['x'] = Math.random() * Math.floor(90)
-        curPoint['y'] = Math.random() * Math.floor(90)
-        bad_pat_data.push(curPoint);
-      }
+                        destination = setter()
+                            .attr("cx", x(coords[i][0]))
+                            .attr("cy", y(coords[i][1]))
+                            .set();
 
-    circle2 = canvas.append('g')
-    .attr("class", 'graph2')
-    .selectAll("dot")
-    .data(bad_pat_data)
-    .enter()
-    .append("g")
-    .attr("transform", function (d) { return 'translate(' + x(d.x) + ', ' + y(d.y) + ')'; } ) 
-    .append("circle")
-    .attr("r", circleRadius)
-    .style("fill", "red")
-}
+                        d3.selectAll('.step1')
+                            .filter(".point" + i)
+                            .transition()
+                            .duration(transition_time)
+                            .call(destination)
+                            .on("interrupt",destination);
+                            
+                    }
 
-function scatter3() {
+                    last_slide = 1
+                })
+            }
+            
+        if (last_slide == 2) {
+            d3.selectAll(".step2")
+                .attr('visibility', 'hidden')
 
-    d3.json("https://raw.githubusercontent.com/pineappleblack/virus-sim/master/points_2.json")
-    .then(function(data) {
-        second_hospital_data = data
+            d3.selectAll(".step0")
+                .attr("cy", y(scroller['data']['slide1_y0']))
 
-        circle3 = canvas.append('g')
-          .attr("class", 'graph3')
-          .selectAll()
-          .data(second_hospital_data)
-          .enter()
-          .append("g")
-          .attr("transform", function (d) { return 'translate(' + x(d.x) + ', ' + y(d.y) + ')'; } ) 
-          .attr("data-role", function (d) { return d.role; } )
-          .append("circle")
-          .attr("r", circleRadius)
-          .style("fill", "yellow")
+            d3.selectAll(".step1")
+                .attr("cy", y(scroller['data']['slide1_points'][0][1]))
 
-          doctors = d3.selectAll("[data-role=doctor]")
+            last_slide = 1
+        }
+            
+        
+    },
 
-          doctors
-              .append('image')
-              .attr("xlink:href", "https://raw.githubusercontent.com/pineappleblack/virus-sim/master/hat.png")
-              .attr("width", 2*circleRadius)
-              .attr("height", 2*circleRadius)
-              .attr("transform", function (d) { return 'translate(' + -circleRadius + ', ' + -2 * circleRadius + ')'; } ) 
-    })
+    slide_2: function () {
 
-    .catch(function(error) {
-    });
+        d3.selectAll(".step0")
+            .interrupt()
 
-  
-}
+        d3.selectAll(".step1")
+            .interrupt()
 
-// Функция перемещения
-function transitioning() {
-    n += 1
-    if (n>6000) return
+        if (last_slide == 1) {
+            d3.selectAll(".step0")
+                .transition()
+                .attr("cy", y(scroller['data']['slide2_y0']))
+                .duration(transition_time)
+                .on('end', function() {
+                    
+                    d3.selectAll(".step1")
+                    .transition()
+                    .attr("cy", y(scroller['data']['slide2_y1']))
+                    .duration(transition_time)
+                    .on('end', function() {
+                
+                        if (d3.selectAll(".step2").size() == 0) {
 
-    const t = d3.transition().duration(700).ease(d3.easeCubic)
+                            coords = scroller['data']['slide2_points']
 
-    circle
-        .transition(t)
-        // .attr("cx", function (d) { return x(d.x-10); } 
-        .attr("cx", function (d) { rn = Math.floor(Math.random() * Math.floor(3)) - 1; d.x = d.x - rn*10; return x(d.x) } )
-        .attr("cy", function (d) { rn = Math.floor(Math.random() * Math.floor(3)) - 1; d.y = d.y - rn*10; return y(d.y) } )
-        // .on("end", transitioning);
-}
+                            for (i = 0; i < coords.length; i++) {
+                                canvas.append("circle")
+                                    .attr("class", 'step2')
+                                    .attr("cx", x(coords[i][0]))
+                                    .attr("cy", y(coords[i][1]))
+                                    .attr("r", dot_size)
+                                    .style("fill", "#ef5350")
+                            }
+                        
+                        }
+                    
+                        d3.selectAll(".step2")
+                            .attr('visibility', 'visible')
+                    })
 
-function masks() {
+                    last_slide = 2
+            })
+        }
+        
+    },
 
-    masksGiven = true
-
-    dots = d3.selectAll(".graph1 g, .graph2 g")
-
-    dots
-        .append('image')
-        .attr("xlink:href", "https://raw.githubusercontent.com/pineappleblack/virus-sim/master/mask.png")
-        .attr("width", 2*circleRadius)
-        .attr("height", 2*circleRadius)
-        .attr("transform", function (d) { return 'translate(' + -circleRadius + ', ' + -circleRadius/2 + ')'; } ) 
-        .attr("class", 'mask')
+    slide_3: function () {
+        
+    }
 }
 
 // ==============================
@@ -189,9 +217,9 @@ function masks() {
    // 1. update height of step elements
    var stepH = Math.floor(document.documentElement.clientHeight * 1.5);
 
-   step.style("height", stepH + "px");
+   step.style("height", 3/2 * figureHeight + "px");
    step_text.style("height", figureHeight/2 + "px");
-   step.style("padding-top", (stepH - figureHeight/2)/2  + "px");
+//    step.style("padding-top", (stepH - figureHeight/2)/2  + "px");
 
    var figureMarginTop = (window.innerHeight - figureHeight) / 2;
    if (figureMarginTop < 0)
@@ -209,98 +237,11 @@ function masks() {
 
  // scrollama event handlers
  function handleStepEnter(response) {
+
     // response = { element, direction, index }
     actual_index = response.index
 
-    actions(actual_index)
- }
-
- function actions(index) {
-
-    if (index == 0) {
-        hospital_1()
-
-        graph1 = d3.select(".graph1")
-        if (!graph1.empty()) {
-        graph1
-            .attr('visibility', 'hidden')
-        }
-    }
-
-    if (index == 1) {
-        graph1 = d3.select(".graph1")
-        if (!graph1.empty()) {
-            graph1
-            .attr('visibility', 'visible')
-        } else {
-            scatter();
-        }
-
-        graph2 = d3.select(".graph2")
-        if (!graph2.empty()) {
-        graph2
-            .attr('visibility', 'hidden')
-        }
-    }
-
-    if (index == 2) {
-        graph2 = d3.select(".graph2")
-        if (!graph2.empty()) {
-          graph2
-            .attr('visibility', 'visible')
-        } else {
-          scatter2();
-        }
-
-        if (!graph1.empty()) {
-            graph1
-                .style("fill", "#7579e7")
-        }
-    }
-
-    if (index == 3) {
-        graph1
-            .style("fill", "red")
-
-        if (typeof masksGiven !== 'undefined') {   
-            d3.selectAll('.mask')
-                .attr('visibility', 'hidden')
-        }
-    }
-
-    if (index == 4) {
-       
-        graph12 = d3.selectAll(".graph1, .graph2")
-        graph12
-            .attr('visibility', 'visible')
-
-        if (typeof masksGiven == 'undefined') {  
-            masks()
-        } else {
-            d3.selectAll('.mask')
-                .attr('visibility', 'visible')
-        }
-
-        graph3 = d3.select(".graph3")
-        if (!graph3.empty()) {
-        graph3
-            .attr('visibility', 'hidden')
-        }
-    }
-
-    if (index == 5) {
-        graph12 = d3.selectAll(".graph1, .graph2, .mask")
-        graph12
-            .attr('visibility', 'hidden')
-
-        graph3 = d3.select(".graph3")
-        if (!graph3.empty()) {
-          graph3
-            .attr('visibility', 'visible')
-        } else {
-          scatter3();
-        }
-    }
+    slides['slide_' + actual_index]();
  }
 
  function setupStickyfill() {
@@ -309,29 +250,33 @@ function masks() {
    });
  }
 
- function init() {
-   setupStickyfill();
+ function init(data) {
 
-   // 1. force a resize on load to ensure proper dimensions are sent to scrollama
-   handleResize();
+    setupStickyfill();
 
-   // 2. setup the scroller passing options
-   // 		this will also initialize trigger observations
-   // 3. bind scrollama event handlers (this can be chained like below)
-   scroller
-     .setup({
-       step: "#scrolly article .step",
-       offset: 0.33,
-       debug: false
-     })
-     .onStepEnter(handleStepEnter);
+    // 1. force a resize on load to ensure proper dimensions are sent to scrollama
+    handleResize();
 
-   // setup resize event
-   window.addEventListener("resize", handleResize);
+    // 2. setup the scroller passing options
+    // 		this will also initialize trigger observations
+    // 3. bind scrollama event handlers (this can be chained like below)
+
+    scroller['data'] = data
+
+    scroller
+        .setup({
+        step: "#scrolly article .step",
+        offset: 1,
+        debug: false,
+        })
+        .onStepEnter(handleStepEnter);
+
+    // setup resize event
+    window.addEventListener("resize", handleResize);
  }
 
- // kick things off
- init();
+// kick things off
+d3.json('points.json').then(init)
 
 var t = null;
 window.onresize = function(event) {
@@ -339,17 +284,51 @@ window.onresize = function(event) {
     t = setTimeout(function() {
 
         d3.selectAll("svg").remove()
-        masksGiven = undefined
 
-        define_styles()
+        define_variables()
         handleResize()
         build_canvas()
 
-        if (actual_index != 'undefined') {
-            for (var i=0; i<actual_index+1; i++) {
-                actions(i)
-            }
+        for (s=0; s<=actual_index+1; s++) {
+            slides['slide_' + s]();
         }
 
     }, 500);
 };
+
+function setter() {
+
+    var s,
+        props = [];
+  
+    function add(type) {
+      return function(key,value) {
+        props.push({type: type, key: key, value: value});
+        return s;
+      };
+    }
+  
+    function set() {
+  
+      return function(selection) {
+  
+        if (!(selection instanceof d3.selection || selection instanceof d3.transition)) {
+            selection  = d3.select(this);
+        }
+  
+        props.forEach(function(prop){
+          selection[prop.type](prop.key,prop.value);
+        });
+  
+      };
+  
+    }
+  
+    return s = {
+      style: add("style"),
+      attr: add("attr"),
+      set: set
+    };
+  
+  }
+  
