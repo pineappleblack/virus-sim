@@ -85,6 +85,7 @@ var slides = {
     slide_1: function () {
 
         if (last_slide == 0) {
+            // Сначала перемещаю точку в первом ряду
             d3.selectAll(".step0")
                 .transition()
                 .attr("cy", y(scroller['data']['slide1_y0']))
@@ -95,6 +96,7 @@ var slides = {
                         .attr('visibility', 'visible')
                 
 
+                    // Создаю точки второго ряда, если их нет
                     if (d3.selectAll(".step1").size() == 0) {
                         
                         start_point = scroller['data']['slide1_start_point']
@@ -111,6 +113,7 @@ var slides = {
                     
                     }
 
+                    // Перемещаю точки второго ряда в новые позиции
                     coords = scroller['data']['slide1_points']
 
                     for (i = 0; i < coords.length; i++) {
@@ -158,35 +161,70 @@ var slides = {
             .interrupt()
 
         if (last_slide == 1) {
+
+            // Сначала перемещаю точку верхнего ряда
             d3.selectAll(".step0")
                 .transition()
                 .attr("cy", y(scroller['data']['slide2_y0']))
                 .duration(transition_time)
                 .on('end', function() {
                     
+                    points_done = 0
+
+                    // Потом перемещаю точки второго ряда
                     d3.selectAll(".step1")
                     .transition()
                     .attr("cy", y(scroller['data']['slide2_y1']))
                     .duration(transition_time)
                     .on('end', function() {
-                
-                        if (d3.selectAll(".step2").size() == 0) {
+                        points_done += 1
 
+                        // Проверяю, что все точки предыдущего ряда завершили движение
+                        if (points_done == d3.selectAll(".step1").size()) {
+                    
+                            start_coords = scroller['data']['slide2_start_points']
+
+                            // Генерирую точки третьего ряда, если их нет
+                            if (d3.selectAll(".step2").size() == 0) {
+
+                                for (i = 0; i < start_coords.length; i++) {
+                                    canvas.append("circle")
+                                        .attr("class", 'step2 point' + i)
+                                        .attr("r", dot_size)
+                                        .style("fill", "#ef5350")
+                                }
+                            
+                            }
+
+                            // Ставлю точки третьего ряда на начальное положение
+                            for (i = 0; i < start_coords.length; i++) {
+                                d3.selectAll(".step2")
+                                    .filter(".point" + i)
+                                    .attr('visibility', 'visible')
+                                    .attr("cx", x(start_coords[i][0]))
+                                    .attr("cy", y(start_coords[i][1]))
+                            }
+
+                            // Перемещаю точки на конечное положение
                             coords = scroller['data']['slide2_points']
 
                             for (i = 0; i < coords.length; i++) {
-                                canvas.append("circle")
-                                    .attr("class", 'step2')
+        
+                                destination = setter()
                                     .attr("cx", x(coords[i][0]))
                                     .attr("cy", y(coords[i][1]))
-                                    .attr("r", dot_size)
-                                    .style("fill", "#ef5350")
+                                    .set();
+        
+                                d3.selectAll('.step2')
+                                    .filter(".point" + i)
+                                    .transition()
+                                    .duration(transition_time)
+                                    .call(destination)
+                                    .on("interrupt",destination);
+                                
                             }
-                        
                         }
-                    
-                        d3.selectAll(".step2")
-                            .attr('visibility', 'visible')
+        
                     })
 
                     last_slide = 2
